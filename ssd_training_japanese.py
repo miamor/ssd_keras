@@ -33,6 +33,8 @@ model.compile(optimizer='Adadelta', loss=loss)
 
 #priors = pickle.load(open('./priorFiles/prior_boxes_ssd300.pkl', 'rb'))
 priors = pickle.load(open('./priorFiles/prior_boxes_ssd300MobileNetV2.pkl', 'rb'))
+print(priors.shape)
+print(priors)
 bbox_util = BBoxUtility(NUM_CLASSES, priors)
 
 #data_parser = XML_preprocessor(data_path='/media/tunguyen/Others/Dataset/JapaneseCard/annotations/', num_classes=NUM_CLASSES-1)
