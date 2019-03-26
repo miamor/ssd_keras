@@ -7,3 +7,4 @@ ssd_keras/
 output/
 assets/
 __archived/
+*.pyc
