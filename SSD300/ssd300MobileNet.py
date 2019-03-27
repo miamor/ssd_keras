@@ -5,7 +5,7 @@ from keras.layers import Conv2D,SeparableConv2D
 from keras.layers import Flatten
 from keras.layers.merge import concatenate
 
-from ssd_layers import PriorBox
+from .ssd_layers import PriorBox
 
 import os
 import warnings
@@ -93,7 +93,7 @@ def _conv_blockSSD(inputs, filters, alpha,block_id=11):
     x = Activation(relu6, name='conv_%d_relu_2' % block_id)(x)
     return x,Conv
 
-def SSD(input_shape, num_classes):
+def SSD(input_shape, num_classes, weights='imagenet'):
 
     img_size=(input_shape[1],input_shape[0])
     input_shape=(input_shape[1],input_shape[0],3)

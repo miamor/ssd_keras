@@ -1,6 +1,7 @@
 import numpy as np
 import os
 from xml.etree import ElementTree
+import pickle
 
 class XML_preprocessor(object):
 
@@ -40,64 +41,20 @@ class XML_preprocessor(object):
     def _to_one_hot(self,name):
         one_hot_vector = [0] * self.num_classes
         #one_hot_vector[int(name)] = 1
-        if name == 'aeroplane':
+        if name == 'p0':
             one_hot_vector[0] = 1
-        elif name == 'bicycle':
+        elif name == 'p1':
             one_hot_vector[1] = 1
-        elif name == 'bird':
+        elif name == 'p2':
             one_hot_vector[2] = 1
-        elif name == 'boat':
-            one_hot_vector[3] = 1
-        elif name == 'bottle':
-            one_hot_vector[4] = 1
-        elif name == 'bus':
-            one_hot_vector[5] = 1
-        elif name == 'car':
-            one_hot_vector[6] = 1
-        elif name == 'cat':
-            one_hot_vector[7] = 1
-        elif name == 'chair':
-            one_hot_vector[8] = 1
-        elif name == 'cow':
-            one_hot_vector[9] = 1
-        elif name == 'diningtable':
-            one_hot_vector[10] = 1
-        elif name == 'dog':
-            one_hot_vector[11] = 1
-        elif name == 'horse':
-            one_hot_vector[12] = 1
-        elif name == 'motorbike':
-            one_hot_vector[13] = 1
-        elif name == 'person':
-            one_hot_vector[14] = 1
-        elif name == 'pottedplant':
-            one_hot_vector[15] = 1
-        elif name == 'sheep':
-            one_hot_vector[16] = 1
-        elif name == 'sofa':
-            one_hot_vector[17] = 1
-        elif name == 'train':
-            one_hot_vector[18] = 1
-        elif name == 'tvmonitor':
-            one_hot_vector[19] = 1
-        elif name == 'p0' and self.num_classes > 20:
-            one_hot_vector[20] = 1
-        elif name == 'p1' and self.num_classes > 20:
-            one_hot_vector[21] = 1
-        elif name == 'p2' and self.num_classes > 20:
-            one_hot_vector[22] = 1
 
         return one_hot_vector
 
-## example on how to use it
-voc_classes = ['Aeroplane', 'Bicycle', 'Bird', 'Boat', 'Bottle',
-               'Bus', 'Car', 'Cat', 'Chair', 'Cow', 'Diningtable',
-               'Dog', 'Horse','Motorbike', 'Person', 'Pottedplant',
-               'Sheep', 'Sofa', 'Train', 'Tvmonitor', 
-               'p0', 'p1', 'p2']
+
+
+voc_classes = ['p0', 'p1', 'p2']
 NUM_CLASSES = len(voc_classes)
 
-import pickle
 #data = XML_preprocessor('/media/tunguyen/Others/Dataset/JapaneseCard/annotations/', NUM_CLASSES).data
 data = XML_preprocessor('data/annotations/', NUM_CLASSES).data
 pickle.dump(data,open('./japanese_data.pkl','wb'))

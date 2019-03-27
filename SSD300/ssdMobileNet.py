@@ -5,7 +5,7 @@ from keras.layers import Conv2D,SeparableConv2D
 from keras.layers import Flatten
 from keras.layers.merge import concatenate
 
-from ssd_layers import PriorBox
+from .ssd_layers import PriorBox
 
 import os
 import warnings

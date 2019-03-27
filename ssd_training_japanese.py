@@ -5,25 +5,39 @@ import keras
 from SSD300.ssd_v2 import SSD300v2
 from SSD300.ssd_training import MultiboxLoss
 from SSD300.ssd_utils import BBoxUtility
-from SSD300.ssd300MobileNetV2Lite import SSD
+#from SSD300.ssd300MobileNetV2Lite import SSD
+from SSD300.ssd300MobileNet import SSD
 
 from get_data_from_XML import XML_preprocessor
 from generator import Generator
 
+'''
 voc_classes = ['Aeroplane', 'Bicycle', 'Bird', 'Boat', 'Bottle',
                'Bus', 'Car', 'Cat', 'Chair', 'Cow', 'Diningtable',
                'Dog', 'Horse','Motorbike', 'Person', 'Pottedplant',
                'Sheep', 'Sofa', 'Train', 'Tvmonitor',
                'p0', 'p1', 'p2']
+'''
+voc_classes = ['p0', 'p1', 'p2']
 NUM_CLASSES = len(voc_classes) + 1
 #NUM_CLASSES = 4
-batch_size = 128
+#batch_size = 128
+#batch_size = 32
+batch_size = 16
 input_shape = (300, 300, 3)
 
+#weights = './weights/mobilenet_ssd.hdf5'
+#weights = './output/training_logs/run1/checkpoint-21-5.6296.hdf5'
+weights = './output/training_logs/run1/checkpoint-37-3.4409.hdf5'
+#priorFile = './priorFiles/prior_boxes_ssd300MobileNetV2.pkl'
+priorFile = './priorFiles/prior_boxes_ssd300MobileNet.pkl'
+
 #model = SSD300v2(input_shape, num_classes=NUM_CLASSES)
-model = SSD(input_shape, num_classes=NUM_CLASSES)
+model = SSD(input_shape, num_classes=NUM_CLASSES, weights=weights)
 model.summary()
 #model.load_weights('./weights/MobileNetSSD300weights_voc_2007.hdf5', by_name=True)
+model.load_weights(weights, by_name=False)
+print('Loaded weights to model.')
 
 loss = MultiboxLoss(NUM_CLASSES, neg_pos_ratio=2.0).compute_loss
 model.compile(optimizer='Adadelta', loss=loss)
@@ -32,7 +46,7 @@ model.compile(optimizer='Adadelta', loss=loss)
 #model.compile(optimizer=optim, loss=loss)
 
 #priors = pickle.load(open('./priorFiles/prior_boxes_ssd300.pkl', 'rb'))
-priors = pickle.load(open('./priorFiles/prior_boxes_ssd300MobileNetV2.pkl', 'rb'))
+priors = pickle.load(open(priorFile, 'rb'))
 print(priors.shape)
 print(priors)
 bbox_util = BBoxUtility(NUM_CLASSES, priors)
@@ -56,17 +70,12 @@ RUN = RUN + 1 if 'RUN' in locals() else 1
 LOG_DIR = './output/training_logs/run{}'.format(RUN)
 LOG_FILE_PATH = LOG_DIR + '/checkpoint-{epoch:02d}-{val_loss:.4f}.hdf5'
 
-EPOCHS = 32
+EPOCHS = 8000
 
 tensorboard = TensorBoard(log_dir=LOG_DIR, write_images=True)
 checkpoint = ModelCheckpoint(filepath=LOG_FILE_PATH, monitor='val_loss', verbose=1, save_best_only=True)
 early_stopping = EarlyStopping(monitor='val_loss', patience=5, verbose=1)
 
-history = model.fit_generator(generator=gen.generate(True), steps_per_epoch=int(gen.train_batches / 4),
-                              validation_data=gen.generate(False), validation_steps=int(gen.val_batches / 4),
-                              epochs=EPOCHS, verbose=1, callbacks=[tensorboard, checkpoint])
-'''
 history = model.fit_generator(generator=gen.generate(True), steps_per_epoch=(gen.train_batches//gen.batch_size),
-                              validation_data=gen.generate(False), validation_steps=(gen.val_batches//gen.batch_size + 1),
-                              epochs=EPOCHS, verbose=1, callbacks=[tensorboard, checkpoint, early_stopping])
-'''
+                              validation_data=gen.generate(False), validation_steps=(gen.train_batches//gen.batch_size),
+                              epochs=EPOCHS, verbose=1, callbacks=[tensorboard, checkpoint])

@@ -4,6 +4,7 @@ from scipy.misc import imread
 from scipy.misc import imresize
 from keras.applications.imagenet_utils import preprocess_input
 
+
 class Generator(object):
     def __init__(self, gt, bbox_util,
                  batch_size, path_prefix,
@@ -42,26 +43,26 @@ class Generator(object):
         self.do_crop = do_crop
         self.crop_area_range = crop_area_range
         self.aspect_ratio_range = aspect_ratio_range
-        
+
     def grayscale(self, rgb):
         return rgb.dot([0.299, 0.587, 0.114])
 
     def saturation(self, rgb):
         gs = self.grayscale(rgb)
-        alpha = 2 * np.random.random() * self.saturation_var 
+        alpha = 2 * np.random.random() * self.saturation_var
         alpha += 1 - self.saturation_var
         rgb = rgb * alpha + (1 - alpha) * gs[:, :, None]
         return np.clip(rgb, 0, 255)
 
     def brightness(self, rgb):
-        alpha = 2 * np.random.random() * self.brightness_var 
+        alpha = 2 * np.random.random() * self.brightness_var
         alpha += 1 - self.saturation_var
         rgb = rgb * alpha
         return np.clip(rgb, 0, 255)
 
     def contrast(self, rgb):
         gs = self.grayscale(rgb).mean() * np.ones_like(rgb)
-        alpha = 2 * np.random.random() * self.contrast_var 
+        alpha = 2 * np.random.random() * self.contrast_var
         alpha += 1 - self.contrast_var
         rgb = rgb * alpha + (1 - alpha) * gs
         return np.clip(rgb, 0, 255)
@@ -73,19 +74,19 @@ class Generator(object):
         noise = eigvec.dot(eigval * noise) * 255
         img += noise
         return np.clip(img, 0, 255)
-    
+
     def horizontal_flip(self, img, y):
         if np.random.random() < self.hflip_prob:
             img = img[:, ::-1]
             y[:, [0, 2]] = 1 - y[:, [2, 0]]
         return img, y
-    
+
     def vertical_flip(self, img, y):
         if np.random.random() < self.vflip_prob:
             img = img[::-1]
             y[:, [1, 3]] = 1 - y[:, [3, 1]]
         return img, y
-    
+
     def random_sized_crop(self, img, targets):
         img_w = img.shape[1]
         img_h = img.shape[0]
@@ -99,7 +100,7 @@ class Generator(object):
         random_ratio *= (self.aspect_ratio_range[1] -
                          self.aspect_ratio_range[0])
         random_ratio += self.aspect_ratio_range[0]
-        w = np.round(np.sqrt(target_area * random_ratio))     
+        w = np.round(np.sqrt(target_area * random_ratio))
         h = np.round(np.sqrt(target_area / random_ratio))
         if np.random.random() < 0.5:
             w, h = h, w
@@ -121,7 +122,7 @@ class Generator(object):
             cx = 0.5 * (box[0] + box[2])
             cy = 0.5 * (box[1] + box[3])
             if (x_rel < cx < x_rel + w_rel and
-                y_rel < cy < y_rel + h_rel):
+                    y_rel < cy < y_rel + h_rel):
                 xmin = (box[0] - x_rel) / w_rel
                 ymin = (box[1] - y_rel) / h_rel
                 xmax = (box[2] - x_rel) / w_rel
@@ -134,7 +135,7 @@ class Generator(object):
                 new_targets.append(box)
         new_targets = np.asarray(new_targets).reshape(-1, targets.shape[1])
         return img, new_targets
-    
+
     def generate(self, train=True):
         while True:
             if train:
@@ -145,7 +146,7 @@ class Generator(object):
                 keys = self.val_keys
             inputs = []
             targets = []
-            for key in keys:            
+            for key in keys:
                 img_path = self.path_prefix + key
                 img = imread(img_path).astype('float32')
                 y = self.gt[key].copy()
@@ -163,11 +164,11 @@ class Generator(object):
                     if self.vflip_prob > 0:
                         img, y = self.vertical_flip(img, y)
                 y = self.bbox_util.assign_boxes(y)
-                inputs.append(img)                
+                inputs.append(img)
                 targets.append(y)
                 if len(targets) == self.batch_size:
                     tmp_inp = np.array(inputs)
                     tmp_targets = np.array(targets)
+                    yield preprocess_input(tmp_inp), tmp_targets
                     inputs = []
                     targets = []
-                    yield preprocess_input(tmp_inp), tmp_targets
