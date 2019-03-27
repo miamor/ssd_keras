@@ -106,7 +106,7 @@ def infer(args):
             #cv2.rectangle(img, (xmin, ymin), (xmax, ymax), colors[label], 1)
             cv2.rectangle(img, (xmin, ymin), (xmax, ymax), (0, 255, 0), 2)
             #cv2.putText(img, display_txt, (xmax, ymin), cv2.FONT_HERSHEY_SIMPLEX, 1, colors[label], 2)
-            cv2.putText(img, display_txt, (xmin, ymax), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 1)
+            cv2.putText(img, display_txt, (xmin, ymax), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2)
 
         if not os.path.isdir(args.output_dir):
             os.makedirs(args.output_dir)
